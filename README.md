@@ -1,4 +1,4 @@
-# ArquitecturaDeComputadores
+# Arquitectura de computadores
 
 Se trabaja sobre la arquitectura SPARC V8.
 
