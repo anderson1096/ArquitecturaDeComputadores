@@ -16,7 +16,7 @@ end IM;
 architecture Behavioral of IM is
 
 
-type ram_type is array (63 downto 0) of std_logic_vector (31 downto 0);
+type ram_type is array (0 to 63) of std_logic_vector (31 downto 0);
 
 impure function fill_ram (ram_file_name: in string) return ram_type is                                                   
        FILE f : text is in ram_file_name;                       
@@ -40,8 +40,7 @@ begin
 process (cont)
 begin
 
-	instruction <= myRam(conv_integer(cont));
-
+	instruction <= myRam(conv_integer(cont(5 downto 0)));
 
 end process;
 
