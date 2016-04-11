@@ -12,8 +12,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- XNOR : 000111
 
 entity CPU is
-    Port ( op : in  STD_LOGIC_VECTOR (1 downto 0);
-           op3 : in  STD_LOGIC_VECTOR (5 downto 0);
+    Port ( op : in  STD_LOGIC_VECTOR (1 downto 0); --formato
+           op3 : in  STD_LOGIC_VECTOR (5 downto 0); --operacion
            salida : out  STD_LOGIC_VECTOR (5 downto 0));
 end CPU;
 
@@ -53,10 +53,13 @@ begin
 						Salida <= "000111";
 					
 					when others =>
-						Salida <= (others=>'0'); --error
+						Salida <= (others=>'1'); --error
 					
 					end case;
+			else
+				Salida <= (others=>'1'); --No existe
 			end if;
+			
 			
 		end process;	
 	

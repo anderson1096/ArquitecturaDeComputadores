@@ -19,6 +19,7 @@ architecture Behavioral of RF is
 
 type reg is array (0 to 39) of std_logic_vector (31 downto 0);
 
+
 signal myReg: reg; 
 
 begin

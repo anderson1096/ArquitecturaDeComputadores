@@ -54,7 +54,7 @@ process(ALUOP)
 				Salida <= A xnor B;
 			
 			when others =>
-				Salida <= (others=>'0'); --error
+				Salida <= (others=>'1'); --error
 			
 			end case;
 
