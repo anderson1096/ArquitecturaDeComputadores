@@ -56,8 +56,8 @@ begin
 						Salida <= (others=>'1'); --error
 					
 					end case;
-			else
-				Salida <= (others=>'1'); --No existe
+			--else
+				--Salida <= (others=>'1'); --No existe
 			end if;
 			
 			
