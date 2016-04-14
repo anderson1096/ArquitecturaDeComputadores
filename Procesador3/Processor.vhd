@@ -2,6 +2,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+--Procesador3 :
+-- Monociclo, soporta la generación de integer conditional codes
 
 entity Processor is
     Port ( reset : in  STD_LOGIC;
@@ -24,7 +26,9 @@ signal crs1_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');
 signal crs2_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');		
 signal mux_out: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');			
 signal cpu_out: STD_LOGIC_VECTOR(5 downto 0):=(others=>'0');
-signal alu_out: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');														
+signal alu_out: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal psr_modifier_out: STD_LOGIC_VECTOR(3 downto 0):=(others=>'0');	
+signal psr_out: STD_LOGIC := '0';								
 
 COMPONENT nPC
 	PORT(
@@ -81,7 +85,8 @@ COMPONENT nPC
 	PORT(
 		A : IN std_logic_vector(31 downto 0);
 		B : IN std_logic_vector(31 downto 0);
-		ALUOP : IN std_logic_vector(5 downto 0);          
+		ALUOP : IN std_logic_vector(5 downto 0);      
+		Carry : IN std_logic ;  
 		Salida : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -91,6 +96,25 @@ COMPONENT nPC
 		op : IN std_logic_vector(1 downto 0);
 		op3 : IN std_logic_vector(5 downto 0);          
 		salida : OUT std_logic_vector(5 downto 0)
+		);
+	END COMPONENT;
+	
+		COMPONENT PSR_Modifier
+	PORT(
+		ALUOP : IN std_logic_vector(5 downto 0);
+		ALU_Result : IN std_logic_vector(31 downto 0);
+		Crs1 : IN std_logic_vector(31 downto 0);
+		Crs2 : IN std_logic_vector(31 downto 0);          
+		nzvc : OUT std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
+
+	COMPONENT PSR
+	PORT(
+		nzvc : IN std_logic_vector(3 downto 0);
+		rst : IN std_logic;
+		clk : IN std_logic;          
+		carry : OUT std_logic
 		);
 	END COMPONENT;
 
@@ -146,6 +170,7 @@ begin
 		A => crs1_aux,
 		B => mux_out,
 		ALUOP => cpu_out,
+		Carry => psr_out,
 		Salida => alu_out
 	);
 	
@@ -153,6 +178,21 @@ begin
 		op => im_out(31 downto 30),
 		op3 => im_out(24 downto 19),
 		salida => cpu_out
+	);
+	
+	Inst_PSR_Modifier: PSR_Modifier PORT MAP(
+		ALUOP => cpu_out,
+		ALU_Result => alu_out,
+		Crs1 => crs1_aux,
+		Crs2 => mux_out,
+		nzvc => psr_modifier_out
+	);
+	
+	Inst_PSR: PSR PORT MAP(
+		nzvc => psr_modifier_out,
+		rst => reset,
+		clk => clk,
+		carry => psr_out
 	);
 	
 data_out <= alu_out;
