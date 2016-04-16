@@ -55,12 +55,11 @@ BEGIN
    begin		
 		
 		reset<='1';
-		constante<="00000000000000000000000000000001";
 		
-		wait for 20 ns;
+		wait for 100 ns;
 		
 		reset<='0';
---		constante<="00000000000000000000000000000000";
+		
       wait;
    end process;
 
