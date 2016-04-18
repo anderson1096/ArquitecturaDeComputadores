@@ -38,10 +38,11 @@ signal myReg : reg := (others => x"00000000");
 
 begin
 
-myReg(0) <= x"00000000";
-
 process(rs1,rs2,rd,dwr, reset)
 	begin 
+	
+		myReg(0) <= x"00000000";
+		
 		if reset = '0' then
 			if(rd/="00000")then
 				Myreg(conv_integer(rd)) <= dwr; 
