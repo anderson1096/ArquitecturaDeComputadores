@@ -57,7 +57,6 @@ BEGIN
       -- hold reset state for 100 ns.
       wait for 100 ns;	
 		
-      wait for <clock>_period*10;
 
       -- insert stimulus here 
 

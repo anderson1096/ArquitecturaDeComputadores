@@ -5,7 +5,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity Processor is
     Port ( reset : in  STD_LOGIC;
-           constante : in  STD_LOGIC_VECTOR (31 downto 0);
            data_out : out  STD_LOGIC_VECTOR (31 downto 0);
            clk : in  STD_LOGIC);
 end Processor;
@@ -45,6 +44,7 @@ COMPONENT nPC
 
 	COMPONENT IM
 	PORT(
+		reset : in  STD_LOGIC;
 		cont : IN std_logic_vector(31 downto 0);          
 		instruction : OUT std_logic_vector(31 downto 0)
 		);
@@ -68,6 +68,7 @@ COMPONENT nPC
 	
 	COMPONENT RF
 	PORT(
+		reset : in  STD_LOGIC;
 		rs1 : IN std_logic_vector(4 downto 0);
 		rs2 : IN std_logic_vector(4 downto 0);
 		rd : IN std_logic_vector(4 downto 0); 
@@ -111,12 +112,13 @@ begin
 	);
 	
 		Inst_Adder: Adder PORT MAP(
-		constante => constante,
+		constante => "00000000000000000000000000000001",
 		data => out_nPC,
 		data_out => data_in
 	);
 	
 	Inst_IM: IM PORT MAP(
+		reset => reset,
 		cont => pc_out,
 		instruction => im_out
 	);
@@ -134,6 +136,7 @@ begin
 	);
 	
 	Inst_RF: RF PORT MAP(
+		reset => reset,
 		rs1 => im_out(18 downto 14),
 		rs2 => im_out(4 downto 0),
 		rd => im_out(29 downto 25),
