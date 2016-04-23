@@ -41,7 +41,11 @@ begin
 process (cont,reset)
 begin
 
-	instruction <= myRam(conv_integer(cont(5 downto 0)));
+	if reset = '1' then
+		instruction <= (others => '0');
+	else 
+		instruction <= myRam(conv_integer(cont(5 downto 0)));
+	end if;
 
 end process;
 
