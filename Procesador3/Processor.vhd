@@ -7,7 +7,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity Processor is
     Port ( reset : in  STD_LOGIC;
-           constante : in  STD_LOGIC_VECTOR (31 downto 0);
            data_out : out  STD_LOGIC_VECTOR (31 downto 0);
            clk : in  STD_LOGIC);
 end Processor;
@@ -49,7 +48,8 @@ COMPONENT nPC
 
 	COMPONENT IM
 	PORT(
-		cont : IN std_logic_vector(31 downto 0);          
+		cont : IN std_logic_vector(31 downto 0);     
+		reset : in  STD_LOGIC;
 		instruction : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -75,7 +75,8 @@ COMPONENT nPC
 		rs1 : IN std_logic_vector(4 downto 0);
 		rs2 : IN std_logic_vector(4 downto 0);
 		rd : IN std_logic_vector(4 downto 0); 
-		dwr : IN std_logic_vector(31 downto 0); 		
+		dwr : IN std_logic_vector(31 downto 0); 	
+		reset : in  STD_LOGIC;
 		crs1 : OUT std_logic_vector(31 downto 0);
 		crs2 : OUT std_logic_vector(31 downto 0)
 		);
@@ -105,14 +106,15 @@ COMPONENT nPC
 		ALU_Result : IN std_logic_vector(31 downto 0);
 		Crs1 : IN std_logic_vector(31 downto 0);
 		Crs2 : IN std_logic_vector(31 downto 0);          
-		nzvc : OUT std_logic_vector(3 downto 0)
+		nzvc : OUT std_logic_vector(3 downto 0);
+		reset : in  STD_LOGIC
 		);
 	END COMPONENT;
 
 	COMPONENT PSR
 	PORT(
 		nzvc : IN std_logic_vector(3 downto 0);
-		rst : IN std_logic;
+		reset : IN std_logic;
 		clk : IN std_logic;          
 		carry : OUT std_logic
 		);
@@ -135,13 +137,14 @@ begin
 	);
 	
 		Inst_Adder: Adder PORT MAP(
-		constante => constante,
+		constante => "00000000000000000000000000000001",
 		data => out_nPC,
 		data_out => data_in
 	);
 	
 	Inst_IM: IM PORT MAP(
 		cont => pc_out,
+		reset => reset,
 		instruction => im_out
 	);
 	
@@ -162,6 +165,7 @@ begin
 		rs2 => im_out(4 downto 0),
 		rd => im_out(29 downto 25),
 		dwr => alu_out,
+		reset => reset,
 		crs1 => crs1_aux,
 		crs2 => crs2_aux
 	);
@@ -185,12 +189,13 @@ begin
 		ALU_Result => alu_out,
 		Crs1 => crs1_aux,
 		Crs2 => mux_out,
-		nzvc => psr_modifier_out
+		nzvc => psr_modifier_out,
+		reset => reset
 	);
 	
 	Inst_PSR: PSR PORT MAP(
 		nzvc => psr_modifier_out,
-		rst => reset,
+		reset => reset,
 		clk => clk,
 		carry => psr_out
 	);

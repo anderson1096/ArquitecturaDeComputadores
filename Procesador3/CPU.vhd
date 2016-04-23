@@ -2,6 +2,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+--SALIDAS PARA OP = 10
 -- ADD : 000000
 -- SUB : 000001
 -- AND : 000010
@@ -10,6 +11,20 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- ORN : 000101
 -- XOR : 000110
 -- XNOR : 000111
+-- SUBcc: 001000
+-- SUBx : 001001
+-- SUBxcc: 001010
+-- ANDcc : 001011
+-- ANDNcc : 001100
+-- ORcc : 001101
+-- ORNcc : 001110
+-- XORcc : 001111
+-- XNORcc : 010000
+-- ADDx : 010001
+-- ADDXcc : 010010
+-- ADDcc : 010011
+
+
 
 entity CPU is
     Port ( op : in  STD_LOGIC_VECTOR (1 downto 0); --formato
@@ -51,6 +66,43 @@ begin
 												
 					when 	"000111" => --xnor
 						Salida <= "000111";
+						
+					when 	"010100" => --SUBcc
+						Salida <= "001000";
+					
+					when 	"001100" => --SUBx
+						Salida <= "001001";
+					
+					when 	"011100" => --SUBxcc
+						Salida <= "001010";
+					
+					when 	"010001" => --ANDcc
+						Salida <= "001011";
+						
+					when 	"010101" => --ANDNcc
+						Salida <= "001100";	
+						
+					when 	"010010" => --ORcc
+						Salida <= "001101";	
+						
+					when 	"010110" => --ORNcc
+						Salida <= "001110";	
+						
+					when 	"010011" => --XORcc
+						Salida <= "001111";
+						
+					when 	"010111" => --XNORcc
+						Salida <= "010000";
+						
+					when 	"001000" => --ADDx
+						Salida <= "010001";
+					
+					when 	"011000" => --ADDxcc
+						Salida <= "010010";
+						
+					when 	"010000" => --ADDcc
+						Salida <= "010011";
+
 					
 					when others =>
 						Salida <= (others=>'1'); --error
