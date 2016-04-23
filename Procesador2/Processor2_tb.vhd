@@ -1,18 +1,20 @@
-
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-
  
-ENTITY Processor1_tb IS
-END Processor1_tb;
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--USE ieee.numeric_std.ALL;
  
-ARCHITECTURE behavior OF Processor1_tb IS 
+ENTITY Processor2_tb IS
+END Processor2_tb;
  
+ARCHITECTURE behavior OF Processor2_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT Processor
     PORT(
          reset : IN  std_logic;
-         constante : IN  std_logic_vector(31 downto 0);
          data_out : OUT  std_logic_vector(31 downto 0);
          clk : IN  std_logic
         );
@@ -51,13 +53,14 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-		
+      -- hold reset state for 100 ns.
 		reset<='1';
-		
-		wait for 100 ns;
-		
+      wait for 100 ns;	
 		reset<='0';
-		
+      
+
+      -- insert stimulus here 
+
       wait;
    end process;
 

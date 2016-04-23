@@ -1,18 +1,18 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-
  
-ENTITY Processor1_tb IS
-END Processor1_tb;
  
-ARCHITECTURE behavior OF Processor1_tb IS 
+ENTITY Processor_tb IS
+END Processor_tb;
  
+ARCHITECTURE behavior OF Processor_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT Processor
     PORT(
          reset : IN  std_logic;
-         constante : IN  std_logic_vector(31 downto 0);
          data_out : OUT  std_logic_vector(31 downto 0);
          clk : IN  std_logic
         );
@@ -27,7 +27,7 @@ ARCHITECTURE behavior OF Processor1_tb IS
    signal data_out : std_logic_vector(31 downto 0);
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clk_period : time := 10 ns;
  
 BEGIN
  
@@ -51,13 +51,13 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-		
-		reset<='1';
+	
+      reset<='1';
 		
 		wait for 100 ns;
 		
 		reset<='0';
-		
+
       wait;
    end process;
 

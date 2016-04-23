@@ -25,7 +25,7 @@ architecture Behavioral of ALU is
 
 begin
 
-process(ALUOP)
+process(ALUOP, A, B)
 	begin
 		case ALUOP is
 		
