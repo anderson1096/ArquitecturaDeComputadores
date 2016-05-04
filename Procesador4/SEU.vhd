@@ -2,7 +2,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
---si el inmediato es negativo, rellena de unos, si no, rellena de ceros
+
 
 entity SEU is
     Port ( imm13 : in  STD_LOGIC_VECTOR (12 downto 0);

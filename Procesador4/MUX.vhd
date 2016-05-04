@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
---el selector es el bit 13 que indica si es un inmmediato o un registro
+
 entity MUX is
 		PORT(  a      : IN std_logic_vector(31 DOWNTO 0); 
              b      : IN std_logic_vector(31 DOWNTO 0); 

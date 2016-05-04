@@ -5,6 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 --ALU soporta las siguientes operaciones
 
+--Estos valores son los que salen del CU, son los recibidor por ALUOP
 -- ADD : 000000
 -- SUB : 000001
 -- AND : 000010

@@ -40,6 +40,15 @@ BEGIN
    stim_proc: process
    begin		
 		
+		reset <= '1';
+		
+		wait for 30 ns;
+		
+		reset <= '0';
+		cont <= "00000000000000000000000000000000";
+		
+		wait for 30 ns;
+		
 		cont <= "00000000000000000000000000000001";
 		
 		wait for 30 ns;

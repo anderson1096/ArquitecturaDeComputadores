@@ -33,7 +33,7 @@ impure function fill_ram (ram_file_name: in string) return ram_type is
        return ram;                                                  
     end function;
 
-signal myRam: ram_type := fill_ram("archivo2.txt");
+signal myRam: ram_type := fill_ram("archivo.txt");
 
 
 begin
@@ -44,9 +44,7 @@ begin
 	if reset = '1' then
 		instruction <= (others => '0');
 	else 
-		instruction <= myRam(conv_integer(cont(5 downto 0)));--porque 2^5 = 32,
-																--que es suficiente para acceder a los 
-																--40 filas de la RAM
+		instruction <= myRam(conv_integer(cont(5 downto 0)));
 	end if;
 
 end process;
