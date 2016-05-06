@@ -20,7 +20,7 @@ end WindowsManager;
 architecture Behavioral of WindowsManager is
 
 begin
-process(rs1,rs2,rd)
+process(rs1,rs2,rd, cwp)
 	begin
 		--si es locales y salida
 		if (rs1>="01000" and rs1<="10111") then
@@ -49,7 +49,7 @@ process(rs1,rs2,rd)
 			nrs1<='0'&rs1;
 		end if;
 		if (rs2>="00000" and rs2<="00111") then
-			nrs1<='0'&rs1;
+			nrs2<='0'&rs2;
 		end if;
 		if (rd>="00000" and rd<="00111") then
 			nrd<='0'&rd;
