@@ -13,7 +13,9 @@ entity RF is
 			  dwr : in  STD_LOGIC_VECTOR (31 downto 0);
 			  reset : in  STD_LOGIC;
            crs1 : out  STD_LOGIC_VECTOR (31 downto 0);
-           crs2 : out  STD_LOGIC_VECTOR (31 downto 0));
+           crs2 : out  STD_LOGIC_VECTOR (31 downto 0);
+			  cRD : out  STD_LOGIC_VECTOR (31 downto 0);
+			  we : in std_logic);
 end RF;
 
 architecture Behavioral of RF is
@@ -30,12 +32,16 @@ process(rs1,rs2,rd,dwr,reset)
 		if reset = '0' then
 			if(rd/="00000")then
 				Myreg(conv_integer(rd)) <= dwr; 
-			end if;
+			end if;			
 			crs1 <= Myreg(conv_integer(rs1));
 			crs2 <= Myreg(conv_integer(rs2));
+			if (we='1') then
+				cRD <= Myreg(conv_integer(rd));
+			end if;
 		else
 			crs1 <= (others=>'0');
 			crs2 <= (others=>'0');
+			cRD <= (others=>'0');
 		end if;
 	end process;
 		

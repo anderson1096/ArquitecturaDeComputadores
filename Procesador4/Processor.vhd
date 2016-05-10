@@ -36,8 +36,25 @@ signal nrd_out_wm: STD_LOGIC_VECTOR(5 downto 0):=(others=>'0');
 signal ncwp_out_wm: STD_LOGIC:='0';	
 signal cwp_out_psr: STD_LOGIC:='0';
 
+signal wrenmem_aux: STD_LOGIC:='0';
+signal datatomem_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');			
+signal cRD_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal datatoreg: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal rf_source_aux: STD_LOGIC_VECTOR(1 downto 0):=(others=>'0');	
+signal O7_aux: STD_LOGIC_VECTOR(5 downto 0):=(others=>'0');	
+signal rfdest_aux: STD_LOGIC:= '0'; 
+signal muxRF_aux: STD_LOGIC_VECTOR(5 downto 0):=(others=>'0');	
+signal imm32_out: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal adderbranchesout: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal addercallout: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal auxdisp30: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');	
+signal pcsource_aux: STD_LOGIC_VECTOR(1 downto 0):=(others=>'0');
+signal MUXUP_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');
+signal we_aux: std_logic:='0';
+
+
 COMPONENT nPC
-	PORT(
+	PORT( 
 		reset : IN std_logic;
 		clk : IN std_logic;
 		data : IN std_logic_vector(31 downto 0);          
@@ -85,7 +102,9 @@ COMPONENT nPC
 		dwr : IN std_logic_vector(31 downto 0); 	
 		reset : in  STD_LOGIC;
 		crs1 : OUT std_logic_vector(31 downto 0);
-		crs2 : OUT std_logic_vector(31 downto 0)
+		crs2 : OUT std_logic_vector(31 downto 0);
+		cRD : out std_logic_vector(31 downto 0);
+		we : in std_logic
 		);
 	END COMPONENT;
 	
@@ -103,7 +122,12 @@ COMPONENT nPC
 	PORT(
 		op : IN std_logic_vector(1 downto 0);
 		op3 : IN std_logic_vector(5 downto 0);          
-		salida : OUT std_logic_vector(5 downto 0)
+		salida : OUT std_logic_vector(5 downto 0);
+		wrenmem : OUT std_logic;
+		rfsource : out std_logic_vector(1 downto 0);
+		rfdest: out std_logic;
+		pcsource: out std_logic_vector (1 downto 0);
+		we: out std_logic
 		);
 	END COMPONENT;
 	
@@ -140,16 +164,64 @@ COMPONENT nPC
 		nrs1 : OUT std_logic_vector(5 downto 0);
 		nrs2 : OUT std_logic_vector(5 downto 0);
 		nrd : OUT std_logic_vector(5 downto 0);
-		ncwp : OUT std_logic
+		ncwp : OUT std_logic;
+		O7 : OUT std_logic_vector(5 downto 0)
 		);
 	END COMPONENT;
-
+	
+	COMPONENT DataMemory
+	PORT(
+		reset : IN std_logic;
+		cRD : IN std_logic_vector(31 downto 0);
+		addres : IN std_logic_vector(4 downto 0);
+		wrenmem : IN std_logic;          
+		datatomem : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT MuxDataMemory
+	PORT(
+		a : IN std_logic_vector(31 downto 0);
+		b : IN std_logic_vector(31 downto 0);
+		c : IN std_logic_vector(31 downto 0);
+		sel : IN std_logic_vector(1 downto 0);          
+		salida : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT MUXRF
+	PORT(
+		a : IN std_logic_vector(5 downto 0);
+		b : IN std_logic_vector(5 downto 0);
+		sel : IN std_logic;          
+		salida : OUT std_logic_vector(5 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT SEU22
+	PORT(
+		imm22 : IN std_logic_vector(21 downto 0);          
+		imm32 : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT MUXUP
+	PORT(
+		a : IN std_logic_vector(31 downto 0);
+		b : IN std_logic_vector(31 downto 0);
+		c : IN std_logic_vector(31 downto 0);
+		d : IN std_logic_vector(31 downto 0);
+		sel : IN std_logic_vector(1 downto 0);          
+		salida : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
 begin
 
 	Inst_nPC: nPC PORT MAP(
 		reset => reset,
 		clk => clk,
-		data => data_in,
+		data => MUXUP_aux,
 		data_out => out_nPC
 	);
 	
@@ -160,7 +232,7 @@ begin
 		data_out => pc_out
 	);
 	
-		Inst_Adder: Adder PORT MAP(
+	Inst_Adder: Adder PORT MAP(
 		constante => "00000000000000000000000000000001",
 		data => out_nPC,
 		data_out => data_in
@@ -187,11 +259,13 @@ begin
 	Inst_RF: RF PORT MAP(
 		rs1 => nrs1_out_wm,
 		rs2 => nrs2_out_wm,
-		rd => nrd_out_wm,
-		dwr => alu_out,
+		rd => muxRF_aux,
+		dwr => datatoreg,
 		reset => reset,
 		crs1 => crs1_aux,
-		crs2 => crs2_aux
+		crs2 => crs2_aux,
+		cRD => cRD_aux,
+		we => we_aux
 	);
 	
 	Inst_ALU: ALU PORT MAP(
@@ -205,7 +279,12 @@ begin
 	Inst_CPU: CPU PORT MAP(
 		op => im_out(31 downto 30),
 		op3 => im_out(24 downto 19),
-		salida => cpu_out
+		salida => cpu_out,
+		wrenmem => wrenmem_aux,
+		rfsource => rf_source_aux,
+		rfdest => rfdest_aux,
+		pcsource => pcsource_aux,
+		we => we_aux
 	);
 	
 	Inst_PSR_Modifier: PSR_Modifier PORT MAP(
@@ -236,9 +315,60 @@ begin
 		nrs1 => nrs1_out_wm,
 		nrs2 => nrs2_out_wm,
 		nrd => nrd_out_wm,
-		ncwp => ncwp_out_wm
+		ncwp => ncwp_out_wm,
+		O7 => O7_aux
 	);
 	
+	Inst_DataMemory: DataMemory PORT MAP(
+		reset => reset,
+		cRD => cRD_aux,
+		addres => alu_out(4 downto 0),
+		wrenmem => wrenmem_aux,
+		datatomem => datatomem_aux
+	);
+	
+	Inst_MuxDataMemory: MuxDataMemory PORT MAP(
+		a => datatomem_aux,
+		b => alu_out,
+		c => pc_out,
+		sel => rf_source_aux,
+		salida => datatoreg
+	);
+	
+	Inst_MUXRF: MUXRF PORT MAP(
+		a => nrd_out_wm,
+		b => O7_aux,
+		sel => rfdest_aux,
+		salida => muxRF_aux
+	);
+	
+	Inst_SEU22: SEU22 PORT MAP(
+		imm22 => im_out(21 downto 0),
+		imm32 => imm32_out
+	);
+	
+	Inst_Adderdisp22: Adder PORT MAP(
+		constante => pc_out,
+		data => imm32_out,
+		data_out => adderbranchesout
+	);
+	
+	Inst_Adderdisp30: Adder PORT MAP(
+		constante => pc_out,
+		data => auxdisp30,
+		data_out => addercallout
+	);
+	
+	Inst_MUXUP: MUXUP PORT MAP(
+		a => addercallout,
+		b => adderbranchesout,
+		c => data_in, --salida adder normal
+		d => alu_out,
+		sel => pcsource_aux,
+		salida => MUXUP_aux
+	);
+
+auxdisp30 <= "00"&im_out(29 downto 0);
 data_out <= alu_out;
 
 end Behavioral;

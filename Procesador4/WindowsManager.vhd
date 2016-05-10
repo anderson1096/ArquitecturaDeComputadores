@@ -14,7 +14,8 @@ entity WindowsManager is
            nrs1 : out  STD_LOGIC_VECTOR (5 downto 0);
            nrs2 : out  STD_LOGIC_VECTOR (5 downto 0);
            nrd : out  STD_LOGIC_VECTOR (5 downto 0);
-           ncwp : out  STD_LOGIC);
+           ncwp : out  STD_LOGIC;
+			  O7 : out STD_LOGIC_VECTOR(5 downto 0));
 end WindowsManager;
 
 architecture Behavioral of WindowsManager is
@@ -71,6 +72,11 @@ process(op,op3,cwp)
 				ncwp<='1';
 			end if;
 		end if;
+		
+		if (op="01") then --call
+			O7 <= conv_std_logic_vector(conv_integer(rd)+(conv_integer(cwp)*16),6);
+		end if;
+				
 end process;
 
 end Behavioral;
