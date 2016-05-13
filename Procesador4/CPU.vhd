@@ -29,6 +29,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity CPU is
     Port ( op : in  STD_LOGIC_VECTOR (1 downto 0); --formato
            op3 : in  STD_LOGIC_VECTOR (5 downto 0); --operacion
+			  icc : in std_logic_vector (3 downto 0);
+			  cond : in std_logic_vector (3 downto 0);
            salida : out  STD_LOGIC_VECTOR (5 downto 0);
 			  wrenmem : out STD_LOGIC;
 			  rfsource: out STD_LOGIC_VECTOR(1 downto 0);
@@ -120,19 +122,155 @@ begin
 			
 		end process;	
 	
-	process(op, op3)
+	process(op, op3, icc, cond)
 		begin
 		
 			if(op = "11") then --formato3 de load y store
 			
 				if (op3 = "000100") then --store
 					wrenmem <= '1';
+					we <= '0';
 				else	--sino, es load
 					wrenmem <= '0';
+					we <= '1';
 				end if;
 			else
 				wrenmem <= '0';
+				we <= '1';
 			end if;
+			
+			--proceso para muxup
+			if (op = "01")then --es un call
+				pcsource <= "00";
+				we <= '1';
+			elsif (op = "00") then --es un branch
+				pcsource <= "01";
+				we <= '0';
+			elsif (op = "10") then 
+				if(op3 = "111000") then --jumpl
+					pcsource <= "11"; --es la alu
+					we <= '0';
+				else --aritmetica
+					pcsource <= "10";
+					we <= '1';
+				end if;
+				
+			end if;
+			
+			--proceso de saltos
+			
+			if(op = "00") then --formato2
+				
+				case cond is
+				
+					when 	"1000" => --BA
+						pcsource <= "11"; --jumpl, pasa la alu
+												
+					when 	"0000" => --BN
+						pcsource <= "10"; --sigue contando normal
+						
+					when 	"1001" => --BNE
+						if(not icc(2)) then --not z
+							pcsource <= "11"; --jumpl
+						else 
+							pcsource <= "10"; --cuenta normal
+						end if;
+						
+					when 	"0001" => --BE
+						if(icc(2)) then --z
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1010" => --BG
+						if( not(icc(2) or (icc(3) xor icc(1)) ) ) then --not(z or (n xor v))
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0010" => --BLE
+						if(icc(2) or (icc(3) xor icc(1)) ) then --z or (n xor v)
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1011" => --BGE
+						if( not(icc(3) xor icc(1)) ) then --not(n xor v)
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0011" => --BL
+						if( icc(3) xor icc(1) ) then --n xor v
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1100" => --BGU
+						if( not(icc(0) or icc(2)) ) then --not(c or z)
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0100" => --BLEU
+						if( icc(0) or icc(2) ) then --c or z
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1101" => --BCC
+						if( not(icc(0)) ) then --not c
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0101" => --BCS
+						if(icc(0)) then --c 
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1110" => --BPOS
+						if( not(icc(3)) ) then --not n
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0110" => --BNEG
+						if(icc(3)) then --n
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"1111" => --BVC
+						if( not(icc(1))) then --not v
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+						
+					when 	"0111" => --BVS
+						if(icc(1)) then --v
+							pcsource <= "11";
+						else 
+							pcsource <= "10";
+						end if;
+					
+					end case;
+						
+			end if;
+			
 	end process;
 	
 	process(op)
@@ -145,20 +283,7 @@ begin
 				rfsource <= "10";
 				rfdest <= '1';
 			else	
-				rfdest <= '1';
-			end if;
-	end process;
-	
-	process(op) --proceso para el muxup
-		begin
-			if (op = "01")then --es un call
-				pcsource <= "00";
-			elsif (op = "00") then --es un branch
-				pcsource <= "01";
-			elsif (op = "10") then --es aritmetica
-				pcsource <= "10";
-			else
-				pcsource <= "11"; --es la alu
+				rfdest <= '0';
 			end if;
 	end process;
 			

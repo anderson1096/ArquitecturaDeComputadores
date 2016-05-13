@@ -16,7 +16,7 @@ end DataMemory;
 
 architecture Behavioral of DataMemory is
 
-type reg is array (0 to 39) of std_logic_vector (31 downto 0);
+type reg is array (0 to 31) of std_logic_vector (31 downto 0);
 
 signal myReg: reg; 
 
@@ -24,8 +24,12 @@ begin
 process(wrenmem,reset,addres,cRD)
 	begin
 		
-		if(wrenmem = '1') then --puede escribir, es un store
-			Myreg(conv_integer(addres)) <= cRD;
+		if(reset = '1') then 
+			myReg <= (others => x"00000000");
+		else
+			if(wrenmem = '1') then --puede escribir, es un store
+				Myreg(conv_integer(addres)) <= cRD;
+			end if;
 		end if;
 		
 		datatomem <= Myreg(conv_integer(addres));

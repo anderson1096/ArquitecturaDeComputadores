@@ -6,6 +6,7 @@ entity PSR is
            reset : in  STD_LOGIC;
            clk : in  STD_LOGIC;
 			  ncwp: in STD_LOGIC;
+			  icc : out STD_LOGIC_VECTOR (3 downto 0);
            carry : out  STD_LOGIC;
 			  cwp : out STD_LOGIC);
 end PSR;
@@ -21,6 +22,7 @@ begin
 		else
 			if rising_edge(clk) then
 				carry<=nzvc(0);
+				icc <= nzvc;
 			end if;
 		end if;
 	end process;

@@ -51,7 +51,7 @@ signal auxdisp30: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');
 signal pcsource_aux: STD_LOGIC_VECTOR(1 downto 0):=(others=>'0');
 signal MUXUP_aux: STD_LOGIC_VECTOR(31 downto 0):=(others=>'0');
 signal we_aux: std_logic:='0';
-
+signal icc_aux : std_logic_vector(3 downto 0):=(others=>'0');
 
 COMPONENT nPC
 	PORT( 
@@ -121,7 +121,9 @@ COMPONENT nPC
 	COMPONENT CPU
 	PORT(
 		op : IN std_logic_vector(1 downto 0);
-		op3 : IN std_logic_vector(5 downto 0);          
+		op3 : IN std_logic_vector(5 downto 0);   
+		icc : IN std_logic_vector(3 downto 0); 
+		cond : IN std_logic_vector(3 downto 0); 
 		salida : OUT std_logic_vector(5 downto 0);
 		wrenmem : OUT std_logic;
 		rfsource : out std_logic_vector(1 downto 0);
@@ -149,7 +151,8 @@ COMPONENT nPC
 		clk : IN std_logic;   
 		ncwp : IN std_logic;
 		carry : OUT std_logic;
-		cwp : out std_logic
+		cwp : out std_logic;
+		icc : out std_logic_vector(3 downto 0)
 		);
 	END COMPONENT;
 	
@@ -201,6 +204,13 @@ COMPONENT nPC
 	COMPONENT SEU22
 	PORT(
 		imm22 : IN std_logic_vector(21 downto 0);          
+		imm32 : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT SEU30
+	PORT(
+		imm30 : IN std_logic_vector(29 downto 0);          
 		imm32 : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -279,6 +289,8 @@ begin
 	Inst_CPU: CPU PORT MAP(
 		op => im_out(31 downto 30),
 		op3 => im_out(24 downto 19),
+		icc => icc_aux, -- conecta con el PSR
+		cond => im_out(28 downto 25),
 		salida => cpu_out,
 		wrenmem => wrenmem_aux,
 		rfsource => rf_source_aux,
@@ -302,7 +314,8 @@ begin
 		clk => clk,
 		ncwp => ncwp_out_wm,
 		carry => psr_out,
-		cwp => cwp_out_psr
+		cwp => cwp_out_psr,
+		icc => icc_aux
 	);
 	
 	Inst_WindowsManager: WindowsManager PORT MAP(
@@ -347,6 +360,11 @@ begin
 		imm32 => imm32_out
 	);
 	
+	Inst_SEU30: SEU30 PORT MAP(
+		imm30 => im_out(29 downto 0),
+		imm32 => auxdisp30
+	);
+	
 	Inst_Adderdisp22: Adder PORT MAP(
 		constante => pc_out,
 		data => imm32_out,
@@ -368,7 +386,6 @@ begin
 		salida => MUXUP_aux
 	);
 
-auxdisp30 <= "00"&im_out(29 downto 0);
 data_out <= alu_out;
 
 end Behavioral;

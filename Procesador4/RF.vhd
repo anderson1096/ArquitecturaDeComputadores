@@ -30,14 +30,12 @@ process(rs1,rs2,rd,dwr,reset)
 	begin 
 		myReg(0) <= x"00000000";
 		if reset = '0' then
-			if(rd/="00000")then
+			if((rd/="00000") and (we = '1'))then
 				Myreg(conv_integer(rd)) <= dwr; 
 			end if;			
 			crs1 <= Myreg(conv_integer(rs1));
 			crs2 <= Myreg(conv_integer(rs2));
-			if (we='1') then
-				cRD <= Myreg(conv_integer(rd));
-			end if;
+			cRD <= Myreg(conv_integer(rd));
 		else
 			crs1 <= (others=>'0');
 			crs2 <= (others=>'0');
