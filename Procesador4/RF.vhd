@@ -37,9 +37,7 @@ process(rs1,rs2,rd,dwr,reset)
 			crs2 <= Myreg(conv_integer(rs2));
 			cRD <= Myreg(conv_integer(rd));
 		else
-			crs1 <= (others=>'0');
-			crs2 <= (others=>'0');
-			cRD <= (others=>'0');
+			myReg <= (others => x"00000000");
 		end if;
 	end process;
 		

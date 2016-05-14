@@ -41,10 +41,28 @@ end CPU;
 
 architecture Behavioral of CPU is
 
+signal aux: STD_LOGIC_VECTOR(2 downto 0):=(others=>'0');			
+
 begin
 	
 	process(op, op3)
+		
 		begin
+		
+			if(op = "11") then
+				case op3 is
+					
+					when "000000" => --load
+						salida <= "000000";
+					
+					when "000100" => --load
+						salida <= "000000";
+						
+					when others =>
+						Salida <= (others=>'1'); --error
+				end case;
+			end if;
+						
 		
 			if(op = "10") then --formato3
 			
@@ -64,6 +82,7 @@ begin
 					
 					when "000010"	 => --or
 						Salida <= "000100";
+						aux <= "111";
 												
 					when "000110"	 => --orn
 						Salida <= "000101";
@@ -109,14 +128,22 @@ begin
 						
 					when 	"010000" => --ADDcc
 						Salida <= "010011";
+						
+					when 	"111100" => --save
+						Salida <= "000000";
+						
+					when 	"111101" => --restore
+						Salida <= "000000";
+						
+					when 	"111000" => --jmpl
+						Salida <= "000000";
 
 					
 					when others =>
 						Salida <= (others=>'1'); --error
 					
 					end case;
-			else
-				Salida <= (others=>'1'); --No existe
+
 			end if;
 			
 			
@@ -164,108 +191,111 @@ begin
 				case cond is
 				
 					when 	"1000" => --BA
-						pcsource <= "11"; --jumpl, pasa la alu
+						pcsource <= "01"; --jumpl, pasa la alu
 												
 					when 	"0000" => --BN
 						pcsource <= "10"; --sigue contando normal
 						
 					when 	"1001" => --BNE
-						if(not icc(2)) then --not z
-							pcsource <= "11"; --jumpl
+						if((not icc(2))='1') then --not z
+							pcsource <= "01"; --branch
 						else 
 							pcsource <= "10"; --cuenta normal
 						end if;
 						
 					when 	"0001" => --BE
-						if(icc(2)) then --z
-							pcsource <= "11";
+						if(icc(2)='1') then --z
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1010" => --BG
-						if( not(icc(2) or (icc(3) xor icc(1)) ) ) then --not(z or (n xor v))
-							pcsource <= "11";
+						if(( not(icc(2) or (icc(3) xor icc(1)) ) ) ='1') then --not(z or (n xor v))
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0010" => --BLE
-						if(icc(2) or (icc(3) xor icc(1)) ) then --z or (n xor v)
-							pcsource <= "11";
+						if((icc(2) or (icc(3) xor icc(1)) )='1') then --z or (n xor v)
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1011" => --BGE
-						if( not(icc(3) xor icc(1)) ) then --not(n xor v)
-							pcsource <= "11";
+						if(( not(icc(3) xor icc(1)) )='1') then --not(n xor v)
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0011" => --BL
-						if( icc(3) xor icc(1) ) then --n xor v
-							pcsource <= "11";
+						if(( icc(3) xor icc(1) )='1') then --n xor v
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1100" => --BGU
-						if( not(icc(0) or icc(2)) ) then --not(c or z)
-							pcsource <= "11";
+						if(( not(icc(0) or icc(2)) )='1') then --not(c or z)
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0100" => --BLEU
-						if( icc(0) or icc(2) ) then --c or z
-							pcsource <= "11";
+						if(( icc(0) or icc(2) )='1') then --c or z
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1101" => --BCC
-						if( not(icc(0)) ) then --not c
-							pcsource <= "11";
+						if(( not(icc(0)) )='1') then --not c
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0101" => --BCS
-						if(icc(0)) then --c 
-							pcsource <= "11";
+						if((icc(0))='1') then --c 
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1110" => --BPOS
-						if( not(icc(3)) ) then --not n
-							pcsource <= "11";
+						if(( not(icc(3)) )='1') then --not n
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0110" => --BNEG
-						if(icc(3)) then --n
-							pcsource <= "11";
+						if((icc(3))='1') then --n
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"1111" => --BVC
-						if( not(icc(1))) then --not v
-							pcsource <= "11";
+						if(( not(icc(1)))='1') then --not v
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
 						
 					when 	"0111" => --BVS
-						if(icc(1)) then --v
-							pcsource <= "11";
+						if((icc(1))='1') then --v
+							pcsource <= "01";
 						else 
 							pcsource <= "10";
 						end if;
+						
+					when others =>
+						pcsource <= (others=>'1'); --error
 					
 					end case;
 						
@@ -276,7 +306,7 @@ begin
 	process(op)
 		begin
 			if (op="10") then --aritmeticas
-				rfsource <= "10";
+				rfsource <= "01";
 			elsif (op="11") then --load
 				rfsource <= "00";
 			elsif (op="01") then --call
