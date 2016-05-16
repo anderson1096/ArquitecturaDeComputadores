@@ -73,7 +73,7 @@ process(op,op3,cwp)
 			end if;
 		end if;
 		
-		O7 <= conv_std_logic_vector(conv_integer(rd)+(conv_integer(cwp)*16),6);
+		O7 <= conv_std_logic_vector(15+(conv_integer(cwp)*16),6);
 
 				
 end process;

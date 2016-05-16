@@ -307,8 +307,10 @@ begin
 		begin
 			if (op="10") then --aritmeticas
 				rfsource <= "01";
+				rfdest <= '0';
 			elsif (op="11") then --load
 				rfsource <= "00";
+				rfdest <= '0';
 			elsif (op="01") then --call
 				rfsource <= "10";
 				rfdest <= '1';

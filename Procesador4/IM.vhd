@@ -33,7 +33,7 @@ impure function fill_ram (ram_file_name: in string) return ram_type is
        return ram;                                                  
     end function;
 
-signal myRam: ram_type := fill_ram("archivo.txt");
+signal myRam: ram_type := fill_ram("jumpl.txt");
 
 
 begin
